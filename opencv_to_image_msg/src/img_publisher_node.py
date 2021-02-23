@@ -34,7 +34,7 @@ def read_images(dir):
     depth_images_filenames = sorted(depth_images_filenames, key=lambda x: int(x.split("_")[0]))
 
     color_images = [cv2.imread(os.path.join(dir, filename)) for filename in color_images_filenames]
-    depth_images = [cv2.imread(os.path.join(dir, filename)) for filename in depth_images_filenames]
+    depth_images = [cv2.cvtColor(np.uint16(cv2.imread(os.path.join(dir, filename))), cv2.COLOR_BGR2GRAY) for filename in depth_images_filenames]
 
     return (color_images,depth_images)
 
@@ -56,7 +56,7 @@ def image_publisher(color_imgs, depth_imgs):
     tmp_rgb_array = np.zeros(0)
     tmp_depth_array = np.zeros(0)
     bridge = CvBridge()
-    rate = rospy.Rate(30) #publish rate
+    rate = rospy.Rate(10) #publish rate
     
     rgb_publisher = rospy.Publisher('/camera/rgb/image_raw', Image, queue_size=5)
     depth_publisher = rospy.Publisher('/camera/depth/image_raw', Image, queue_size=5)
@@ -73,16 +73,16 @@ def image_publisher(color_imgs, depth_imgs):
             print('Depth img error... Two pictures seem to be the same...EXITING')
             exit(1)
 
-        rgb_img_msg = bridge.cv2_to_imgmsg(np.asarray(color_img[:, :]), encoding='bgr8')
-        rgb_img_msg.header.stamp = rospy.Time.now()
+        rgb_img_msg = bridge.cv2_to_imgmsg(color_img[:, :], encoding='bgr8')
+        rgb_img_msg.header.stamp = rospy.Time.now() # using time stamp as if data are being collected now
         rgb_img_msg.header.frame_id = "/camera"
         
         # # Visualize what is being published
         # cv2.imshow('image',depth_img)
         # cv2.waitKey(1)
         
-        depth_img_msg = bridge.cv2_to_imgmsg(np.asarray(depth_img[:, :]), encoding='passthrough')
-        depth_img_msg.header.stamp = rospy.Time.now()
+        depth_img_msg = bridge.cv2_to_imgmsg(depth_img[:, :], encoding='passthrough')
+        depth_img_msg.header.stamp = rospy.Time.now() # using time stamp as if data are being collected now
         depth_img_msg.header.frame_id = "/camera"
 
         #testing parameters
