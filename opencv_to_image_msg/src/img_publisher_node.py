@@ -12,7 +12,7 @@ import rospkg
 import std_msgs.msg
 from sensor_msgs.msg import Image
 
-IMAGES_DIR = '/home/userofpc/Desktop/img' #change this
+IMAGES_DIR = '/path/to/img' #change this
 # DEPTH_TIMESTAMP_FILE = "path/to/timestampsdepth.txt"
 # COLOR_TIMESTAMP_FILE = "/path/to/timestampscolor.txt"
 
@@ -23,7 +23,6 @@ def read_images(dir):
     depth_images_filenames = []
     color_images = []
     depth_images = []
-    depth_normalized = []
     
     for filename in os.listdir(dir):
         if 'color' in filename:
