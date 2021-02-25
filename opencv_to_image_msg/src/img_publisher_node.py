@@ -12,7 +12,7 @@ import rospkg
 import std_msgs.msg
 from sensor_msgs.msg import Image
 
-IMAGES_DIR = 'path/to/extacted/images' #change this
+IMAGES_DIR = '/home/userofpc/Desktop/img' #change this
 # DEPTH_TIMESTAMP_FILE = "path/to/timestampsdepth.txt"
 # COLOR_TIMESTAMP_FILE = "/path/to/timestampscolor.txt"
 
@@ -23,7 +23,8 @@ def read_images(dir):
     depth_images_filenames = []
     color_images = []
     depth_images = []
-
+    depth_normalized = []
+    
     for filename in os.listdir(dir):
         if 'color' in filename:
             color_images_filenames.append(filename)
@@ -34,9 +35,9 @@ def read_images(dir):
     depth_images_filenames = sorted(depth_images_filenames, key=lambda x: int(x.split("_")[0]))
 
     color_images = [cv2.imread(os.path.join(dir, filename)) for filename in color_images_filenames]
-    depth_images = [cv2.cvtColor(np.uint16(cv2.imread(os.path.join(dir, filename))), cv2.COLOR_BGR2GRAY) for filename in depth_images_filenames]
-
-    return (color_images,depth_images)
+    depth_images = [cv2.imread(os.path.join(dir, filename),-1) for filename in depth_images_filenames]
+    
+    return (color_images, depth_images)
 
 
 def get_timestamps(txt_file):
@@ -64,7 +65,7 @@ def image_publisher(color_imgs, depth_imgs):
     print('Started publishing....')
 
     for (color_img, depth_img) in zip(color_imgs, depth_imgs):
-
+        
         # Testing for non-equal sequences of imgs
         if np.array_equal(tmp_rgb_array, color_img):
             print('Rgb img error... Two pictures seem to be the same...EXITING')
